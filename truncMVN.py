@@ -18,10 +18,11 @@ class truncMVN(object):
     
     calc_norm: If true, calculate normalization at initialization. 
     """
-    def __init__(self, mean=None,cov=None,low=None,high=None,low_int_limit=np.array([-10.,-10.]),calc_norm=False):                    
+    def __init__(self, mean=None,cov=None,low=None,high=None,re_norm=True,low_int_limit=np.array([-10.,-10.]),calc_norm=False):                    
         self.low_int_limit = low_int_limit
         self.low = low
         self.high = high
+        self.re_norm = re_norm
         
         if calc_norm:
             self.norm = self.normalize(mean,cov,high,low)
@@ -49,7 +50,7 @@ class truncMVN(object):
         return 1./reg_prob
             
         
-    def logpdf(self,data,mean=np.array([]),cov=np.array([]),re_norm=True,approx=True):
+    def logpdf(self,data,mean=np.array([]),cov=np.array([]),re_norm=True,approx=False):
         """
         Calculate the logpdf for a truncated MVN
         
@@ -67,9 +68,9 @@ class truncMVN(object):
         
         if re_norm:
             #if the covaraince terms are really small, re-normalization
-            #seems to throw NaNs and we probably don't need to anyway
+            #seems to throw NaNs and we probably don't need to anyway.
             #could be dangerous.
-            if (cov[0,0] < 1e-2) or (cov[1,1] < 1e-2) and approx:
+            if ((cov[0,0] < 1e-3) or (cov[1,1] < 1e-3)) and approx:
                 norm = 1.
                 
             else:
